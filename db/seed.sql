@@ -20,11 +20,11 @@ VALUES
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-    ('Naruto','Uzumaki', 1, 1),
-    ('Ichigo','Kurosaki', 1, null),
-    ('Neji','Hyuuga', 2, 2),
-    ('John','Wick', 2, null),
-    ('Peter','Parker', 3, 3),
-    ('Michelle','Jones', 3, null),
-    ('Cersei','Lannister', 4, 4),
-    ('Tyrion','Lannister', 4, null);
+    ('Naruto ','Uzumaki', 1, 1),
+    ('Ichigo ','Kurosaki', 1, null),
+    ('Neji ','Hyuuga', 2, 2),
+    ('John ','Wick', 2, null),
+    ('Peter ','Parker', 3, 3),
+    ('Michelle ','Jones', 3, null),
+    ('Cersei ','Lannister', 4, 4),
+    ('Tyrion ','Lannister', 4, null);
