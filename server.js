@@ -1,18 +1,16 @@
 const inquirer = require('inquirer');
-const table = require('console.table');
 const connection = require('./config/connection');
-require('console.table');
 
-function runEmployees() {
+function firstPrompt() {
     inquirer.prompt(
         {
             type: 'list',
             message: 'What would you like to do?',
             name: 'option',
             choices: [
-                'View all departments',
-                'View all roles',
-                'View all employees',
+                'View departments',
+                'View roles',
+                'View employees',
                 'Add department',
                 'Add roles',
                 'Add employees',
@@ -22,14 +20,14 @@ function runEmployees() {
             ]
         }).then(answer => {
             switch (answer.option) {
-                case "View all departments":
-                    viewAllDepartments();
+                case "View departments":
+                    viewDepartments();
                     break;
-                case "View all roles":
-                    viewAllRoles();
+                case "View roles":
+                    viewRoles();
                     break;
                 case "View all employees":
-                    viewAllEmployees();
+                    viewEmployees();
                     break;
                 case "Add department":
                     addDepartment();
@@ -56,34 +54,41 @@ function runEmployees() {
         })
 };
 
-function viewAllDepartments(){
+function viewDepartments() {
     connection.query(
         'SELECT * FROM department', (err,res) => {
             if (err) {
                 throw err;
             }
-            runEmployees();
+            res.forEach((department) => {});
+            firstPrompt();
         }
     )
 };
 
-function viewAllRoles(){
+function viewRoles(){
     connection.query(
-        'select ro.title as Role_title, ro.salary as Salary , dept.name as DepartmentName from Role ro left join department as dept on dept.id = ro.department_id', (err, res) => {
+        'SELECT * FROM role', (err, res) => {
             if(err){
                 throw err;
             }
-            runEmployees();
+            firstPrompt();
         }
     )
 };
 
-function viewAllEmployees(){
-    const query='Select emp.id as EmployeeID, concat(emp.first_name,"  ",emp.last_name ) as EmployeeName , ro.title as Job_tittle, ro.salary as Salary,dept.name as Department_Name,concat(emp2.first_name,"  ",emp2.last_name) as ManagerName from employee_tracker_db.employee as emp left join employee_tracker_db.employee as emp2 on emp2.id=emp.manager_id left join employee_tracker_db.Role as ro on emp.role_id=ro.id left join employee_tracker_db.department as dept on dept.id = ro.department_id';
+function viewEmployees(){
+    const query=`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+    FROM employee e
+    LEFT JOIN role r
+    ON e.role_id = r.id
+    LEFT JOIN department d
+    ON d.id = r.department_id
+    LEFT JOIN employee m
+    ON m.id = e.manager_id`;
     connection.query(query, (err, res) => {
             if (err) { throw err; }
-            console.table(res);
-            runEmployees();
+            firstPrompt();
         }
     )
 };
@@ -93,13 +98,13 @@ function addDepartment(){
         {
             type: 'input',
             name: 'department',
-            message: 'Add a department name'
+            message: 'Add department'
         }
     ]).then(answer=>{
         console.log(answer);
-        connection.query('INSERT INTO department SET?',{name: answer.department},(err,res)=>{
+        connection.query('INSERT INTO department SET?', {name: answer.department}, (err,res)=>{
             if(err)throw err;
-            runEmployees();
+            firstPrompt();
         });
     });
 };
@@ -138,7 +143,7 @@ function addRoles(){
             return connection.promise().query('INSERT INTO role SET ?',{title: answer.roles,salary: answer.salary,department_id: answer.dept});
         }).then(res=>{
             console.log('Added new role')
-            runEmployees();
+            firstPrompt();
         }).catch(err=>{
             throw err
         });
@@ -206,7 +211,7 @@ async function addEmployee(){
             },
             function(err) {
                 if (err) throw err;
-                runEmployees();
+                firstPrompt();
             })
     })
 };
@@ -244,7 +249,7 @@ function updateEmployeeRole(){
                     ],
             );
         }).then(res=>{
-            runEmployees();
+            firstPrompt();
         }).catch(err=>{
             throw err
         });
@@ -283,10 +288,10 @@ function updateManager(){
                     ],
             );
         }).then(res=>{
-            runEmployees();
+            firstPrompt();
         }).catch(err=>{
             throw err
         });
 };
 
-runEmployees();
+firstPrompt();
