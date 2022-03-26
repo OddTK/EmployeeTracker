@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const connection = require('./config/connection');
+const table = require('console.table');
 
 function firstPrompt() {
     inquirer.prompt(
@@ -26,7 +27,7 @@ function firstPrompt() {
                 case "View roles":
                     viewRoles();
                     break;
-                case "View all employees":
+                case "View employees":
                     viewEmployees();
                     break;
                 case "Add department":
@@ -52,42 +53,44 @@ function firstPrompt() {
 };
 
 function viewDepartments() {
-    connection.query(
-        'SELECT * FROM department', (err,res) => {
-            if (err) {
-                throw err;
-            }
-            res.forEach((department) => {});
+	connection.query('SELECT * FROM department', function (err, res) {
+		if (err) { throw err };
+		res.forEach((department) => {
+			console.log(`${department.id} | ${department.name}`);
+		});
+		firstPrompt();
+	});
+};
+
+function viewRoles() {
+    connection.query('SELECT * FROM role', function (err, res) {
+        if (err) { throw err };
+        res.forEach((role) => {
+            console.log(`${role.title}`);
+        });
+        firstPrompt();
+    })
+};
+
+function viewEmployees() {
+    const employee =
+    `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+    FROM employee e
+    LEFT JOIN role r
+	ON e.role_id = r.id
+    LEFT JOIN department d
+    ON d.id = r.department_id
+    LEFT JOIN employee m
+	ON m.id = e.manager_id`;
+
+	connection.query(employee, function (err, res) {
+		if (err) throw err;
+		console.table(res);
             firstPrompt();
         }
     )
 };
 
-function viewRoles(){
-    connection.query(
-        'SELECT * FROM role', (err, res) => {
-            if(err){
-                throw err;
-            }
-            firstPrompt();
-        }
-    )
-};
-
-function viewAllEmployees() {
-    const sql = 'Select emp.id as EmployeeID, concat(emp.first_name,"  ",emp.last_name ) as EmployeeName , ro.title as Job_tittle, ro.salary as Salary,dept.name as Department_Name,concat(emp2.first_name,"  ",emp2.last_name) as ManagerName from employees_db.employee as emp left join employees_db.employee as emp2 on emp2.id=emp.manager_id left join employees_db.Role as ro on emp.role_id=ro.id left join employees_db.department as dept on dept.id = ro.department_id';
-    connection.query(
-        sql,
-        (err, res) => {
-            if (err) {
-                throw err;
-            }
-            console.table(res)
-            runEmployees();
-        }
-
-    )
-}
 
 function addDepartment(){
     inquirer.prompt([
