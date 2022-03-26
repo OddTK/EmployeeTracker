@@ -44,9 +44,6 @@ function firstPrompt() {
                 case "Update employee manager":
                     updateManager()
                     break;
-                case "View employee by manager":
-                    viewEmployeeByManager()
-                    break;
                 case "Exit":
                     connection.end();
                     break;
@@ -88,6 +85,7 @@ function viewEmployees(){
     ON m.id = e.manager_id`;
     connection.query(query, (err, res) => {
             if (err) { throw err; }
+            console.table(res);
             firstPrompt();
         }
     )
